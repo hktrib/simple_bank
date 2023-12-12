@@ -22,5 +22,8 @@
 
 
 
-#### Starting server
-- 
+# Starting server
+- Clone the repo, and `cd simple_bank/`
+- Run `go mod tidy` to fetch dependencies
+- Run `go build cmd/main.go` to create a binary
+- **Run `./main` to start server**
