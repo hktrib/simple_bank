@@ -19,8 +19,8 @@ func NewServer() *Server {
 	}
 }
 
-func (srv *Server) ServeHTTP() {
+func (srv *Server) MountHandlers() {
 	srv.Router.Use(middleware.Logger)
 	srv.Router.Post("/addtransaction", srv.PostTransactionHandler)
-	srv.Router.Get("/filtertransactions", srv.GetTransactionPDFHandler)
+	srv.Router.Post("/filtertransactions", srv.GetTransactionPDFHandler)
 }

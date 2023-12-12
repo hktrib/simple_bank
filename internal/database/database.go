@@ -1,6 +1,7 @@
 package db
 
 import (
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"os"
@@ -16,7 +17,6 @@ var (
 )
 
 type Database struct {
-	Indexes         []string
 	RawRecords      []Transaction
 	FilteredRecords []Transaction
 }
@@ -72,18 +72,34 @@ func (db *Database) FilterRecords(userEmail string, startDate time.Time, endDate
 
 func (db *Database) AddRecord(record *Transaction) error {
 
-	database, err := os.OpenFile(DatabaseFile, os.O_RDWR, os.ModePerm)
+	database, err := os.OpenFile(DatabaseFile, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return errors.New("unable to open database file")
 	}
+	defer database.Close()
 
 	if record != nil {
-		gocsv.Marshal(record, database)
+		// str := fmt.Sprintf("%v", record)
+
+		rawTransactionData := []string{}
+
+		rawTransactionData = append(rawTransactionData, record.Email)
+		rawTransactionData = append(rawTransactionData, record.Date)
+		rawTransactionData = append(rawTransactionData, record.Amount)
+
+		fmt.Println(rawTransactionData)
+
+		w := csv.NewWriter(database)
+		w.Write(rawTransactionData)
+		if err := w.Error(); err != nil {
+			return fmt.Errorf("unable to write record: %v", err)
+		}
+		w.Flush()
 		return nil
 	}
 	return errors.New("no transaction record to add")
 }
 
-// func (db *DB) FilterRecords() error {
+// func (db *DB) FilterRescords() error {
 
 // }

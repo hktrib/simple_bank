@@ -4,18 +4,21 @@ import (
 	"net/http"
 
 	"github.com/hktrib/simple_bank/cmd/api"
-	"github.com/hktrib/simple_bank/internal/database/db"
+	db "github.com/hktrib/simple_bank/internal/database"
 )
 
 func main() {
 
 	srv := api.NewServer()
 
-	csvDB := db.Database{}
+	csvDB := &db.Database{}
+	srv.DB = csvDB
+
+	srv.MountHandlers()
 
 	// // Temp Start/End times
 
-	// startDate, err := time.Parse(db.LayoutString, "12/02/2023")
+	// // startDate, err := time.Parse(db.LayoutString, "12/02/2023")
 	// if err != nil {
 	// 	log.Debug().Err(err).Msg("error parsing time")
 	// }
