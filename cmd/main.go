@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/hktrib/simple_bank/cmd/api"
-	"github.com/hktrib/simple_bank/internal/db"
+	"github.com/hktrib/simple_bank/internal/database/db"
 )
 
 func main() {
