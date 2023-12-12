@@ -2,8 +2,8 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -95,22 +95,40 @@ func (srv *Server) GetTransactionPDFHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	if startDate.IsZero() || endDate.IsZero() {
-		fmt.Println("Invalid date format")
+		log.Debug().Err(err).Msg("error while parsing time")
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// Filtering Database Records
 	err = srv.DB.FilterRecords(requestBody.Email, startDate, endDate)
 	if err != nil {
-		fmt.Println("Something went wrong")
-		log.Debug().Err(err).Msg("erorr")
+		log.Debug().Err(err).Msg("error while filtering records")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Println(srv.DB.FilteredRecords)
-	fmt.Printf("Filtered ParssableRecords: %v", srv.DB.FilteredParseableRecords)
-
 	records := srv.DB.FilteredParseableRecords
-
 	srv.PDFGenerator.GeneratePDF(records[0], records[1:])
+
+	err = srv.Emailer.SendEmail(requestBody.Email, "Transaction Records",
+		"Attached below are your transaction records.", "./transactions.pdf")
+	if err != nil {
+		log.Debug().Err(err).Msg("failed to send email")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Removing the transactions.pdf file from local file structure
+	err = os.Remove("./transactions.pdf")
+	if err != nil {
+		log.Debug().Err(err).Msg("failed to remove transactions.pdf")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Clearing database for filtering for future users.
+	srv.DB.Clear()
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("OK!"))

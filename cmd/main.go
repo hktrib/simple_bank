@@ -1,49 +1,24 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 
 	"github.com/hktrib/simple_bank/cmd/api"
-	db "github.com/hktrib/simple_bank/internal/database"
-	"github.com/hktrib/simple_bank/internal/pdf"
 )
 
 func main() {
+	// Loading env variables for
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	srv := api.NewServer()
-
-	csvDB := &db.Database{}
-	genPDF := pdf.PDFGenerator{}
-	srv.DB = csvDB
-	srv.PDFGenerator = &genPDF
-
+	srv := api.NewServer(os.Getenv("SENDER_EMAIL"), os.Getenv("SENDER_PASSCODE"))
 	srv.MountHandlers()
-
-	// // Temp Start/End times
-
-	// // startDate, err := time.Parse(db.LayoutString, "12/02/2023")
-	// if err != nil {
-	// 	log.Debug().Err(err).Msg("error parsing time")
-	// }
-	// endDate, err := time.Parse(db.LayoutString, "12/08/2023")
-	// if err != nil {
-	// 	log.Debug().Err(err).Msg("error parsing time")
-	// }
-
-	// if startDate.IsZero() || endDate.IsZero() {
-	// 	fmt.Println("Invalid date format")
-	// 	return
-	// }
-	// err = csvDB.FilterRecords("hktribunal@gmail.com", startDate, endDate)
-	// if err != nil {
-	// 	fmt.Println("Something went wrong")
-	// 	log.Debug().Err(err).Msg("erorr")
-	// 	return
-	// }
-	// fmt.Println(csvDB.FilteredRecords)
-
-	// mux := chi.NewRouter()
-
 	go func() {
 
 		// Starting the server

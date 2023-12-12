@@ -28,7 +28,7 @@ type Transaction struct {
 	Amount string `csv:"amount"`
 }
 
-// FilterRecords reads from DatabaseFile and stores filter records based on query
+// FilterRecords reads from DatabaseFile and stores filter records based on queried startDate and endDate
 func (db *Database) FilterRecords(userEmail string, startDate time.Time, endDate time.Time) error {
 	file, err := os.Open(DatabaseFile)
 	if err != nil {
@@ -43,22 +43,26 @@ func (db *Database) FilterRecords(userEmail string, startDate time.Time, endDate
 		return err
 	}
 
-	// Data being in correct format is insured by the API client
+	// initializing columns for filtered records.
+	columns := []string{}
+	columns = append(columns, "user_email")
+	columns = append(columns, "date_of_transaction")
+	columns = append(columns, "amount")
+	db.FilteredParseableRecords = append(db.FilteredParseableRecords, columns)
 
 	// Filtering DB []Records
 	for _, record := range db.RawRecords {
+
+		filteredTransactionData := []string{}
 		transactionDate, err := time.Parse(LayoutString, record.Date)
 		if err != nil {
-			fmt.Printf("Record.Date: %v\n", record.Date)
-			fmt.Printf("LayoutString: %v\n", LayoutString)
 			return errors.New("internal server error")
 		}
 
-		filteredTransactionData := []string{}
-
 		if record.Email == userEmail {
 			if startDate.Equal(transactionDate) || endDate.Equal(transactionDate) {
-				// transactionDate is equal to either startDate or endDate
+
+				// if transactionDate is equal to either startDate or endDate
 
 				filteredTransactionData = append(filteredTransactionData, record.Email)
 				filteredTransactionData = append(filteredTransactionData, record.Date)
@@ -66,9 +70,9 @@ func (db *Database) FilterRecords(userEmail string, startDate time.Time, endDate
 
 				db.FilteredRecords = append(db.FilteredRecords, record)
 				db.FilteredParseableRecords = append(db.FilteredParseableRecords, filteredTransactionData)
-				fmt.Printf("Record: %v\n", record)
 			} else if startDate.Before(transactionDate) && endDate.After(transactionDate) {
-				// If transactionDate is in range between startDate and endDate
+
+				// Else If transactionDate is in range between startDate and endDate
 
 				filteredTransactionData = append(filteredTransactionData, record.Email)
 				filteredTransactionData = append(filteredTransactionData, record.Date)
@@ -76,18 +80,15 @@ func (db *Database) FilterRecords(userEmail string, startDate time.Time, endDate
 
 				db.FilteredRecords = append(db.FilteredRecords, record)
 				db.FilteredParseableRecords = append(db.FilteredParseableRecords, filteredTransactionData)
-				fmt.Printf("Record: %v\n", record)
-				fmt.Printf("Start date: %v\n", startDate)
-			} else {
-				// transactionDate is not in range
-				fmt.Printf("End date: %v\n", endDate)
 			}
 		}
 	}
 
+	// error: unable to filter returning nil
 	return nil
 }
 
+// Adds a new Transaction record to the database csv file.
 func (db *Database) AddRecord(record *Transaction) error {
 
 	database, err := os.OpenFile(DatabaseFile, os.O_APPEND|os.O_WRONLY, 0644)
@@ -97,8 +98,6 @@ func (db *Database) AddRecord(record *Transaction) error {
 	defer database.Close()
 
 	if record != nil {
-		// str := fmt.Sprintf("%v", record)
-
 		rawTransactionData := []string{}
 
 		rawTransactionData = append(rawTransactionData, record.Email)
@@ -118,6 +117,8 @@ func (db *Database) AddRecord(record *Transaction) error {
 	return errors.New("no transaction record to add")
 }
 
-// func (db *DB) FilterRescords() error {
-
-// }
+func (db *Database) Clear() {
+	db.FilteredParseableRecords = [][]string{}
+	db.FilteredRecords = []Transaction{}
+	db.RawRecords = []Transaction{}
+}
