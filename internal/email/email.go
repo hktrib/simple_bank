@@ -20,7 +20,7 @@ func (e *Emailer) SendEmail(to, subject, body, attachmentPath string) error {
 	// Attaching the PDF file to the email
 	m.Attach(attachmentPath)
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, e.Sender, "quyy lzaf ogob szhs")
+	d := gomail.NewDialer("smtp.gmail.com", 587, e.Sender, e.Passcode)
 
 	if err := d.DialAndSend(m); err != nil {
 		return err
