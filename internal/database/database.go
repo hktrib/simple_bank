@@ -17,8 +17,9 @@ var (
 )
 
 type Database struct {
-	RawRecords      []Transaction
-	FilteredRecords []Transaction
+	RawRecords               []Transaction
+	FilteredRecords          []Transaction
+	FilteredParseableRecords [][]string
 }
 
 type Transaction struct {
@@ -53,15 +54,32 @@ func (db *Database) FilterRecords(userEmail string, startDate time.Time, endDate
 			return errors.New("internal server error")
 		}
 
+		filteredTransactionData := []string{}
+
 		if record.Email == userEmail {
 			if startDate.Equal(transactionDate) || endDate.Equal(transactionDate) {
+				// transactionDate is equal to either startDate or endDate
+
+				filteredTransactionData = append(filteredTransactionData, record.Email)
+				filteredTransactionData = append(filteredTransactionData, record.Date)
+				filteredTransactionData = append(filteredTransactionData, record.Amount)
+
 				db.FilteredRecords = append(db.FilteredRecords, record)
+				db.FilteredParseableRecords = append(db.FilteredParseableRecords, filteredTransactionData)
 				fmt.Printf("Record: %v\n", record)
 			} else if startDate.Before(transactionDate) && endDate.After(transactionDate) {
+				// If transactionDate is in range between startDate and endDate
+
+				filteredTransactionData = append(filteredTransactionData, record.Email)
+				filteredTransactionData = append(filteredTransactionData, record.Date)
+				filteredTransactionData = append(filteredTransactionData, record.Amount)
+
 				db.FilteredRecords = append(db.FilteredRecords, record)
+				db.FilteredParseableRecords = append(db.FilteredParseableRecords, filteredTransactionData)
 				fmt.Printf("Record: %v\n", record)
 				fmt.Printf("Start date: %v\n", startDate)
 			} else {
+				// transactionDate is not in range
 				fmt.Printf("End date: %v\n", endDate)
 			}
 		}

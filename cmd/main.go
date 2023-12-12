@@ -5,6 +5,7 @@ import (
 
 	"github.com/hktrib/simple_bank/cmd/api"
 	db "github.com/hktrib/simple_bank/internal/database"
+	"github.com/hktrib/simple_bank/internal/pdf"
 )
 
 func main() {
@@ -12,7 +13,9 @@ func main() {
 	srv := api.NewServer()
 
 	csvDB := &db.Database{}
+	genPDF := pdf.PDFGenerator{}
 	srv.DB = csvDB
+	srv.PDFGenerator = &genPDF
 
 	srv.MountHandlers()
 

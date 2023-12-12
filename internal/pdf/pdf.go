@@ -10,6 +10,13 @@ type PDFGenerator struct {
 	PDF *gofpdf.Fpdf
 }
 
+func (p *PDFGenerator) GeneratePDF(header []string, table [][]string) {
+	p.NewPDFFormat()
+	p.CreateHeader(header)
+	p.CreateTable(table)
+	p.SavePDF()
+}
+
 func (p *PDFGenerator) NewPDFFormat() {
 	p.PDF = gofpdf.New("L", "mm", "Letter", "")
 	p.PDF.AddPage()

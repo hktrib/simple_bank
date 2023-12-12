@@ -106,6 +106,11 @@ func (srv *Server) GetTransactionPDFHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	fmt.Println(srv.DB.FilteredRecords)
+	fmt.Printf("Filtered ParssableRecords: %v", srv.DB.FilteredParseableRecords)
+
+	records := srv.DB.FilteredParseableRecords
+
+	srv.PDFGenerator.GeneratePDF(records[0], records[1:])
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("OK!"))

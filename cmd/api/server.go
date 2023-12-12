@@ -5,11 +5,13 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	db "github.com/hktrib/simple_bank/internal/database"
+	pdf "github.com/hktrib/simple_bank/internal/pdf"
 )
 
 type Server struct {
-	Router chi.Router
-	DB     *db.Database
+	Router       chi.Router
+	DB           *db.Database
+	PDFGenerator *pdf.PDFGenerator
 }
 
 func NewServer() *Server {
