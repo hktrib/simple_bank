@@ -3,41 +3,45 @@ package main
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/hktrib/simple_bank/cmd/api"
+	"github.com/hktrib/simple_bank/internal/db"
 )
 
 func main() {
-	// fmt.Println("Starting")
 
-	// file, err := os.Open("database.csv")
+	srv := api.NewServer()
+
+	csvDB := db.Database{}
+
+	// // Temp Start/End times
+
+	// startDate, err := time.Parse(db.LayoutString, "12/02/2023")
 	// if err != nil {
-	// 	log.Debug().Err(err).Msg("Error opening database file")
+	// 	log.Debug().Err(err).Msg("error parsing time")
+	// }
+	// endDate, err := time.Parse(db.LayoutString, "12/08/2023")
+	// if err != nil {
+	// 	log.Debug().Err(err).Msg("error parsing time")
+	// }
+
+	// if startDate.IsZero() || endDate.IsZero() {
+	// 	fmt.Println("Invalid date format")
 	// 	return
 	// }
-
-	// db := db.Database{}
-
-	// reader := csv.NewReader(file)
-	// reader.FieldsPerRecord = -1 // Allow variable number of fields
-	// data, err := reader.ReadAll()
+	// err = csvDB.FilterRecords("hktribunal@gmail.com", startDate, endDate)
 	// if err != nil {
-	// 	panic(err)
+	// 	fmt.Println("Something went wrong")
+	// 	log.Debug().Err(err).Msg("erorr")
+	// 	return
 	// }
+	// fmt.Println(csvDB.FilteredRecords)
 
-	// // Print the CSV data
-	// for _, row := range data {
-	// 	for _, col := range row {
-	// 		fmt.Printf("%s,", col)
-	// 	}
-	// 	fmt.Println()
-	// }
-
-	mux := chi.NewRouter()
+	// mux := chi.NewRouter()
 
 	go func() {
 
 		// Starting the server
-		http.ListenAndServe(":8080", mux)
+		http.ListenAndServe(":8080", srv.Router)
 	}()
 	select {}
 }

@@ -1,4 +1,4 @@
-module simple_bank
+module github.com/hktrib/simple_bank
 
 go 1.21.4
 
