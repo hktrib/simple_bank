@@ -1,5 +1,4 @@
-<img width="589" alt="image" src="https://github.com/hktrib/simple_bank/assets/116051160/8b42d32e-656a-459b-a5bc-4152bc94756d"># simple_bank
-Zywa Initial Assignment -> a simple bank service
+# Zywa Initial Assignment -> a simple bank service
 
 
 ### Project Structure
